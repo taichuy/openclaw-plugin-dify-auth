@@ -16,13 +16,9 @@ jobs:
           node-version: 22
       - name: install
         run: npm install
-        working-directory: openclaw-plugin-dify-auth
       - name: lint
         run: npm run -s lint --if-present
-        working-directory: openclaw-plugin-dify-auth
       - name: typecheck
         run: npm run -s typecheck --if-present
-        working-directory: openclaw-plugin-dify-auth
       - name: test
         run: npm run -s test --if-present
-        working-directory: openclaw-plugin-dify-auth

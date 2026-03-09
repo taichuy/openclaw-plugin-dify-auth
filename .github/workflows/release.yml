@@ -16,9 +16,7 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
       - name: install
         run: npm install
-        working-directory: openclaw-plugin-dify-auth
       - name: publish
         run: npm publish --access public
-        working-directory: openclaw-plugin-dify-auth
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
