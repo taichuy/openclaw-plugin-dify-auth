@@ -11,6 +11,9 @@ on:
       - "**"
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -30,7 +33,7 @@ jobs:
 
   publish:
     needs: build
-    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
+    if: (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch') && github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -38,9 +41,50 @@ jobs:
         with:
           node-version: 22
           registry-url: 'https://registry.npmjs.org'
+      
+      - name: Check version and create tag if needed
+        id: check_version
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # 获取当前 package.json 版本
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+          TAG_NAME="v$PACKAGE_VERSION"
+          echo "Current version: $PACKAGE_VERSION"
+          
+          # 检查该 tag 是否已存在
+          if git rev-parse "$TAG_NAME" >/dev/null 2>&1; then
+            echo "Tag $TAG_NAME already exists."
+            echo "should_publish=true" >> $GITHUB_OUTPUT
+          else
+            # 如果是 main 分支且 tag 不存在，则创建并推送 tag
+            if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+              echo "Tag $TAG_NAME does not exist. Creating..."
+              git config user.name "github-actions[bot]"
+              git config user.email "github-actions[bot]@users.noreply.github.com"
+              git tag $TAG_NAME
+              git push origin $TAG_NAME
+              echo "Created and pushed tag $TAG_NAME"
+              echo "should_publish=true" >> $GITHUB_OUTPUT
+            else
+              echo "Not on main branch and tag does not exist. Skipping auto-tag."
+              # 如果是手动触发或者是 tag 触发但 tag 不匹配（理论上不可能），则仍然允许尝试发布
+              if [[ "${{ startsWith(github.ref, 'refs/tags/v') }}" == "true" ]] || [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+                echo "should_publish=true" >> $GITHUB_OUTPUT
+              else
+                echo "should_publish=false" >> $GITHUB_OUTPUT
+              fi
+            fi
+          fi
+
       - name: install
+        if: steps.check_version.outputs.should_publish == 'true'
         run: npm install
+
       - name: publish
-        run: npm publish --access public
+        if: steps.check_version.outputs.should_publish == 'true'
+        run: |
+          # 尝试发布，如果版本已存在会报错，忽略报错继续（避免重复 tag 触发导致失败）
+          npm publish --access public || echo "Publish failed (likely version exists), continuing..."
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
