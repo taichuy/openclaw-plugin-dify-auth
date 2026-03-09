@@ -1,6 +1,6 @@
 {
   "name": "@taichuy/dify-auth",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "OpenClaw Dify Auth provider plugin",
   "repository": {
     "type": "git",
