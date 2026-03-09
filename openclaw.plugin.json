@@ -1,0 +1,13 @@
+{
+  "$schema": "../../schemas/plugin.json",
+  "id": "dify-auth",
+  "name": "Dify Auth",
+  "description": "Connect to Dify applications",
+  "version": "1.0.0",
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  },
+  "entry": "./index.ts"
+}

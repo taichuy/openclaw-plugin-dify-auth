@@ -1,0 +1,16 @@
+.git/
+.github/
+node_modules/
+logs/
+coverage/
+dist/
+test/
+.DS_Store
+.env
+*.log
+*.tgz
+.gitignore
+package-lock.json
+pnpm-lock.yaml
+bun.lock
+bun.lockb

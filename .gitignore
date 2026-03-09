@@ -1,0 +1,12 @@
+node_modules/
+logs/
+coverage/
+dist/
+.DS_Store
+.env
+*.log
+*.tgz
+bun.lock
+bun.lockb
+package-lock.json
+pnpm-lock.yaml
