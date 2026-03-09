@@ -27,7 +27,7 @@
     "node": ">=22.12.0"
   },
   "devDependencies": {
-    "openclaw": "2026.2.10"
+    "openclaw": "latest"
   },
   "openclaw": {
     "extensions": [
