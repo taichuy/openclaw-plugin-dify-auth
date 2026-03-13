@@ -10,8 +10,15 @@ export const difyAuthPlugin = {
   description: "Dify provider authentication and proxy",
   configSchema: emptyPluginConfigSchema(),
   register(api: OpenClawPluginApi) {
-    // 1. Register HTTP Proxy Route
-    api.registerHttpRoute({ path: PROXY_PATH, handler: handleProxyRequest });
+    // OpenClaw's responses client calls nested paths like /v1/responses under the
+    // configured base URL, so the proxy route must stay publicly reachable and
+    // prefix-match subpaths.
+    api.registerHttpRoute({
+      path: PROXY_PATH,
+      auth: "plugin",
+      match: "prefix",
+      handler: handleProxyRequest,
+    });
 
     // 2. Register Provider
     api.registerProvider({
